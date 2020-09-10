@@ -1,19 +1,17 @@
 package io.fabric8.quickstarts;
 
+import org.apache.camel.component.properties.PropertiesParser;
+import org.jasypt.encryption.StringEncryptor;
+import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
+import org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig;
 import org.jasypt.iv.RandomIvGenerator;
 import org.jasypt.salt.RandomSaltGenerator;
-import org.jasypt.encryption.StringEncryptor;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.context.annotation.Primary;
-import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
-import org.apache.camel.component.properties.PropertiesParser;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.jasypt.spring4.properties.EncryptablePropertyPlaceholderConfigurer;
 
 
 @SpringBootApplication
@@ -33,7 +31,7 @@ public class EncryptedPropertiesSpringBootApplication {
     }
 
     @Bean
-    public EnvironmentStringPBEConfig environmentVariablesConfiguration(){
+    public EnvironmentStringPBEConfig environmentVariablesConfiguration() {
         EnvironmentStringPBEConfig environmentStringPBEConfig = new EnvironmentStringPBEConfig();
         environmentStringPBEConfig.setAlgorithm(ENCRYPTION_ALGORITHM);
         environmentStringPBEConfig.setPasswordEnvName(MASTER_PASSWORD_ENV_VARIABLE_NAME);
@@ -44,27 +42,23 @@ public class EncryptedPropertiesSpringBootApplication {
     }
 
     @Bean
-    public StandardPBEStringEncryptor configurationEncryptor(@Autowired EnvironmentStringPBEConfig environmentVariablesConfiguration){
+    public StringEncryptor configurationEncryptor(EnvironmentStringPBEConfig environmentVariablesConfiguration) {
         StandardPBEStringEncryptor standardPBEStringEncryptor = new StandardPBEStringEncryptor();
         standardPBEStringEncryptor.setConfig(environmentVariablesConfiguration);
         return standardPBEStringEncryptor;
     }
 
     @Bean
-    public static EncryptablePropertyPlaceholderConfigurer propertyConfigurer(@Autowired StandardPBEStringEncryptor configurationEncryptor){
-        EncryptablePropertyPlaceholderConfigurer propertyConfigurer = new EncryptablePropertyPlaceholderConfigurer(configurationEncryptor);
-        propertyConfigurer.setLocation(new ClassPathResource("application.properties"));
+    public static EncryptablePropertyConfigurer propertyConfigurer(StringEncryptor stringEncryptor) {
+        EncryptablePropertyConfigurer propertyConfigurer =  new EncryptablePropertyConfigurer(stringEncryptor);
+        propertyConfigurer.setLocations(new ClassPathResource("application.properties"));
         return propertyConfigurer;
     }
 
-    /*
-        This bean override the default org.apache.camel.spring.boot.SpringPropertiesParser
-        and allow the use of encrypted properties inside the camel context.
-     */
     @Bean
     @Primary
-    public PropertiesParser propertyParser(@Autowired PropertyResolver propertyResolver,
-                                           @Autowired StringEncryptor stringEncryptor){
-        return new EncryptedPropertiesSpringParser(propertyResolver,stringEncryptor);
+    public PropertiesParser propertyParser(PropertyResolver resolver, StringEncryptor stringEncryptor) {
+        return new EncryptedPropertiesSpringParser(resolver, stringEncryptor);
     }
+
 }

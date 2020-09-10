@@ -18,7 +18,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- configure the Fuse version you want to use here -->
-        <fuse.bom.version>7.8.0.fuse-sb2-780010</fuse.bom.version>
+        <!--<fuse.bom.version>7.8.0.fuse-sb2-780018-redhat-00001</fuse.bom.version>-->
+        <fuse.bom.version>7.7.0.fuse-sb2-770010-redhat-00001</fuse.bom.version>
 
         <!-- maven plugin versions -->
         <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
@@ -48,8 +49,18 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-spring-boot-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.camel</groupId>
+                    <artifactId>camel-spring-boot</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-spring-boot</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -57,11 +68,15 @@
         </dependency>
 
         <dependency>
-            <groupId>org.jasypt</groupId>
-            <artifactId>jasypt-spring4</artifactId>
-            <version>${jasypt-version}</version>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-jasypt-starter</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.jasypt</groupId>
+            <artifactId>jasypt</artifactId>
+            <version>${jasypt-version}</version>
+        </dependency>
 
         <!-- Test -->
         <dependency>
@@ -115,6 +130,11 @@
                 <groupId>org.jboss.redhat-fuse</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${fuse.bom.version}</version>
+                <configuration>
+                    <environmentVariables>
+                        <JASYPT_ENCRYPTION_PASSWORD>mainpassword</JASYPT_ENCRYPTION_PASSWORD>
+                    </environmentVariables>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>

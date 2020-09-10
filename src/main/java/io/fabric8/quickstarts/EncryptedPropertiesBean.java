@@ -2,8 +2,8 @@ package io.fabric8.quickstarts;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 /**
  * A bean that logs a message when you call the {@link #testEncryptedProperty()} method.
@@ -23,7 +23,7 @@ public class EncryptedPropertiesBean {
     private String unencryptedPassword;
 
     public void testEncryptedProperty() {
-        LOG.info("test properties decryption outside camel context: test.password        = {}", unencryptedPassword);
-        LOG.info("test unencrypted properties outside camel context: encrypted.password  = {}", encryptedPassword);
+        LOG.info("test properties decryption outside camel context: test.password        = {}", encryptedPassword);
+        LOG.info("test unencrypted properties outside camel context: encrypted.property  = {}", unencryptedPassword);
     }
 }
